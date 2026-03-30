@@ -1,6 +1,7 @@
 """机器人状态与控制API"""
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
@@ -88,8 +89,8 @@ async def list_positions(db: AsyncSession = Depends(get_db)):
 class NavPosCreate(BaseModel):
     robot_poi: str
     display_name: str
-    terminal_id: int | None = None
-    area_id: int | None = None
+    terminal_id: Optional[int] = None
+    area_id: Optional[int] = None
     aliases: list[str] = []
     is_entry: bool = False
     is_charger: bool = False
