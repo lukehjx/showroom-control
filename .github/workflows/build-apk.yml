@@ -1,0 +1,77 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'robot-apk/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:   # 手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('robot-apk/**/*.gradle*', 'robot-apk/**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x robot-apk/gradlew
+
+      - name: Build Debug APK
+        run: |
+          cd robot-apk
+          ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: showroom-apk-debug
+          path: robot-apk/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Upload to COS
+        if: success()
+        env:
+          COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
+          COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
+          COS_BUCKET: zyk-1252093492
+          COS_REGION: ap-tokyo
+        run: |
+          pip install coscmd -q
+          coscmd config -a $COS_SECRET_ID -s $COS_SECRET_KEY -b $COS_BUCKET -r $COS_REGION
+          APK_FILE="robot-apk/app/build/outputs/apk/debug/app-debug.apk"
+          DATE=$(date +%Y%m%d-%H%M)
+          COS_PATH="showroom-apk/showroom-debug-${DATE}.apk"
+          coscmd upload "$APK_FILE" "$COS_PATH"
+          echo "APK_URL=https://${COS_BUCKET}.cos.${COS_REGION}.myqcloud.com/${COS_PATH}" >> $GITHUB_ENV
+          echo "✅ APK已上传: https://${COS_BUCKET}.cos.${COS_REGION}.myqcloud.com/${COS_PATH}"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Build Result" >> $GITHUB_STEP_SUMMARY
+          echo "- APK: robot-apk/app/build/outputs/apk/debug/app-debug.apk" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$APK_URL" ]; then
+            echo "- COS URL: $APK_URL" >> $GITHUB_STEP_SUMMARY
+          fi
