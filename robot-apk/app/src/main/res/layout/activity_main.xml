@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#0d1b2a">
 
-    <!-- WebView 全屏内容区（占据绝大部分屏幕） -->
+    <!-- WebView 全屏内容区 -->
     <WebView
         android:id="@+id/webview_content"
         android:layout_width="match_parent"
@@ -37,8 +37,17 @@
             android:layout_marginStart="8dp"
             android:text="展厅智控"
             android:textColor="#00d4ff"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif-medium" />
+            android:textSize="12sp" />
+
+        <!-- 当前POI位置 -->
+        <TextView
+            android:id="@+id/tv_poi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:text="--"
+            android:textColor="#8ab4cc"
+            android:textSize="11sp" />
 
         <!-- 电量 -->
         <TextView
@@ -51,7 +60,7 @@
 
     </LinearLayout>
 
-    <!-- 底部状态条（显示当前状态/回复文字） -->
+    <!-- 底部状态条 -->
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
@@ -63,7 +72,6 @@
         android:paddingEnd="16dp"
         android:orientation="horizontal">
 
-        <!-- 状态图标 -->
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -81,6 +89,36 @@
             android:textSize="13sp"
             android:maxLines="2"
             android:ellipsize="end" />
+
+    </LinearLayout>
+
+    <!-- 语音监听指示器（右下角麦克风动画） -->
+    <LinearLayout
+        android:id="@+id/view_listening"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/bottom_bar"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:background="#cc001122"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_robot"
+            android:tint="#00ff99" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="聆听中"
+            android:textColor="#00ff99"
+            android:textSize="10sp"
+            android:layout_marginTop="4dp" />
 
     </LinearLayout>
 
