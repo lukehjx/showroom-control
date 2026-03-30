@@ -1,33 +1,89 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: #0d1b2a;
-  color: #e0f0ff;
-  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #04080f;
+  color: #e2f4ff;
+  font-family: "PingFang SC", "Microsoft YaHei", monospace, sans-serif;
 }
 
 /* 玻璃磨砂卡片 */
 .glass-card {
-  background: rgba(15, 35, 54, 0.85);
-  border: 1px solid rgba(0, 212, 255, 0.15);
+  background: rgba(8, 24, 42, 0.85);
   backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 212, 255, 0.15);
   border-radius: 12px;
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .6; transform: scale(1.15); }
+}
+
+/* 在线状态点 */
+.online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #39ff14;
+  animation: pulse 2s infinite;
+  display: inline-block;
+}
+
+/* 离线状态点 */
+.offline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a7fa0;
+  display: inline-block;
+}
+
+/* 数值大字 */
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #00d4ff;
+  font-family: monospace;
+}
+
+/* Ant Design Card override */
+.ant-card {
+  background: rgba(8, 24, 42, 0.85) !important;
+  border: 1px solid rgba(0, 212, 255, 0.15) !important;
+  backdrop-filter: blur(12px);
+}
+.ant-card-head {
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1) !important;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #04080f; }
+::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 3px; }
+
+/* ReactFlow 画布背景 */
+.react-flow__background {
+  background: #080f1a;
+}
+.react-flow__controls {
+  background: rgba(8, 24, 42, 0.85);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 8px;
+}
+.react-flow__controls-button {
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  color: #8ab4cc;
+  fill: #8ab4cc;
+}
+.react-flow__controls-button:hover {
+  background: rgba(0, 212, 255, 0.1);
+}
+.react-flow__minimap {
+  background: rgba(8, 24, 42, 0.85);
+  border: 1px solid rgba(0, 212, 255, 0.15);
 }
 
 /* 电蓝色发光 */
 .glow-blue { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
-
-/* 状态点 */
-.status-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.status-dot.online { background: #52c41a; box-shadow: 0 0 8px #52c41a; }
-.status-dot.offline { background: #ff4d4f; }
-.status-dot.warning { background: #faad14; }
-
-/* 滚动条美化 */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0d1b2a; }
-::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 3px; }

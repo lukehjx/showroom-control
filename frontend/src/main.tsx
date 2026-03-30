@@ -14,15 +14,28 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         token: {
           colorPrimary: '#00d4ff',
           colorBgBase: '#0d1b2a',
-          colorBgContainer: '#0f2336',
-          colorBgElevated: '#132840',
+          colorBgContainer: '#0f2035',
+          colorBgElevated: '#152840',
+          colorBorder: 'rgba(0,212,255,0.2)',
+          colorText: '#e2f4ff',
+          colorTextSecondary: '#8ab4cc',
           borderRadius: 8,
-          fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif',
+          fontFamily: '"PingFang SC", "Microsoft YaHei", monospace, sans-serif',
         },
         components: {
-          Layout: { siderBg: '#080f1a', headerBg: '#0a1628' },
-          Menu: { darkItemBg: '#080f1a', darkSubMenuItemBg: '#0a1628' },
-        }
+          Layout: {
+            siderBg: '#04080f',
+            headerBg: '#080f1a',
+          },
+          Menu: {
+            darkItemBg: '#04080f',
+            darkSubMenuItemBg: '#080f1a',
+            darkItemSelectedBg: 'rgba(0,212,255,0.15)',
+          },
+          Card: {
+            colorBgContainer: 'rgba(8,24,42,0.85)',
+          },
+        },
       }}
     >
       <App />

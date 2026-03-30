@@ -26,10 +26,12 @@ async def get_token() -> str:
         return _token_cache["token"]
     async with aiohttp.ClientSession() as s:
         resp = await s.post(
-            f"{BASE_URL}/pc/authority/api/v1/login",
+            f"{BASE_URL}/app/authority/api/v1/login",
             data={"account": settings.ZHONGKONG_ACCOUNT, "password": settings.ZHONGKONG_PASSWORD}
         )
         data = await resp.json()
+        if not data.get("data") or not data["data"].get("token"):
+            raise Exception(f"中控登录失败: {data.get('msg', '未知错误')} (code={data.get('code')})")
         token = data["data"]["token"]
         _token_cache["token"] = token
         _token_cache["expires"] = time.time() + 3600 * 6  # 6小时
@@ -51,35 +53,48 @@ def now_ms():
 
 
 async def sync_specials(db: AsyncSession) -> int:
-    data = await api_get(f"/pc/exhibition/api/v1/hall/{HALL_ID}/specialExhibitions")
+    data = await api_get(f"/app/exhibition/api/v1/halls/{HALL_ID}/specialExhibitions")
     items = data.get("data", []) or []
     await db.execute(delete(CloudSpecial))
+    await db.commit()
     for item in items:
         db.add(CloudSpecial(
             id=item["id"],
             name=item.get("specialExhibitionName", ""),
             description=item.get("specialExhibitionDescription", ""),
             hall_id=HALL_ID,
-            state=item.get("state", "1"),
+            state=str(item.get("operationState") or item.get("state") or "1"),
         ))
     await db.commit()
     return len(items)
 
 
 async def sync_areas(db: AsyncSession) -> int:
-    data = await api_get(f"/pc/exhibition/api/v1/hall/{HALL_ID}/areas")
-    items = data.get("data", []) or []
+    # 展区通过专场详情获取
+    specials_result = await db.execute(select(CloudSpecial))
+    specials = specials_result.scalars().all()
+    if not specials:
+        return 0
     await db.execute(delete(CloudArea))
-    for item in items:
-        db.add(CloudArea(
-            id=item["id"],
-            name=item.get("exhibitionAreaName", ""),
-            description=item.get("exhibitionAreaDescription", ""),
-            hall_id=HALL_ID,
-            sort=item.get("sort", 0),
-        ))
     await db.commit()
-    return len(items)
+    area_ids = set()
+    total = 0
+    for special in specials[:3]:
+        data = await api_get(f"/app/exhibition/api/v1/halls/{HALL_ID}/specialExhibitions/{special.id}")
+        areas = (data.get("data") or {}).get("exhibitionAreaList", [])
+        for area in areas:
+            if area["id"] not in area_ids:
+                area_ids.add(area["id"])
+                db.add(CloudArea(
+                    id=area["id"],
+                    name=area.get("exhibitionAreaName", ""),
+                    description=area.get("exhibitionAreaDescription", ""),
+                    hall_id=HALL_ID,
+                    sort=area.get("sort", 0),
+                ))
+                total += 1
+    await db.commit()
+    return total
 
 
 async def sync_terminals_and_resources(db: AsyncSession) -> int:
@@ -90,18 +105,25 @@ async def sync_terminals_and_resources(db: AsyncSession) -> int:
     if not specials:
         return 0
 
+    # 先清理，使用独立事务
     await db.execute(delete(CloudTerminal))
     await db.execute(delete(CloudResource))
+    await db.commit()
+
     total = 0
+    seen_ids = set()
 
     for special in specials[:3]:  # 只同步前3个专场避免太慢
-        data = await api_get(f"/pc/exhibition/api/v1/halls/{HALL_ID}/specialExhibitions/{special.id}")
+        data = await api_get(f"/app/exhibition/api/v1/halls/{HALL_ID}/specialExhibitions/{special.id}")
         areas = (data.get("data") or {}).get("exhibitionAreaList", [])
         for area in areas:
-            for terminal_data in area.get("exhibitionAreaTerminalList", []):
-                t = terminal_data
+            for t in area.get("exhibitionAreaTerminalList", []):
+                tid = t["id"]
+                if tid in seen_ids:
+                    continue
+                seen_ids.add(tid)
                 terminal = CloudTerminal(
-                    id=t["id"],
+                    id=tid,
                     name=t.get("hostName", ""),
                     host_ip=t.get("hostIp", ""),
                     host_port=str(t.get("hostPort", "8888")),
@@ -119,9 +141,10 @@ async def sync_terminals_and_resources(db: AsyncSession) -> int:
 
 async def sync_commands(db: AsyncSession) -> int:
     """同步组策略命令"""
-    data = await api_get(f"/pc/exhibition/api/v1/group-command/")
+    data = await api_get(f"/app/exhibition/api/v1/group-command/")
     items = data.get("data", []) or []
     await db.execute(delete(CloudCommand))
+    await db.commit()
     for item in items:
         db.add(CloudCommand(
             id=item["id"],

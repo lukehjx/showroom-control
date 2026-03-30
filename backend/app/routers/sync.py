@@ -8,6 +8,16 @@ from ..models import SyncLog, CloudSpecial, CloudTerminal, CloudResource, CloudC
 router = APIRouter(prefix="/api/sync", tags=["sync"])
 
 
+@router.post("/specials")
+async def sync_specials_only(bg: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    async def do():
+        from ..database import AsyncSessionLocal
+        async with AsyncSessionLocal() as db2:
+            await sync_specials(db2)
+    bg.add_task(do)
+    return {"code": 200, "msg": "专场同步已启动"}
+
+
 @router.post("/all")
 async def sync_all_data(bg: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     async def do_sync():

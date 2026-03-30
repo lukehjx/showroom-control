@@ -18,6 +18,7 @@ from .routers.tasks import router as tasks_router, notify_router
 from .routers.logs import router as logs_router
 from .routers.settings_api import router as settings_router
 from .routers.flows import router as flows_router
+from .routers.zhongkong import router as zhongkong_router
 from .services.wecom_bot import start_bot, set_chat_handler
 from .services.chat import handle_input
 from .config import settings
@@ -107,6 +108,7 @@ app.include_router(notify_router)
 app.include_router(logs_router)
 app.include_router(settings_router)
 app.include_router(flows_router)
+app.include_router(zhongkong_router)
 
 
 @app.get("/health")
