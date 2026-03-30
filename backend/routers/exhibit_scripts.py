@@ -100,7 +100,8 @@ async def update_script(script_id: int, body: dict):
                 "terminal_id", "terminal_name", "trigger_phrases", "opening_speech",
                 "resource_id", "resource_title", "commentary", "nav_position",
                 "tts_delay_seconds", "enabled", "note", "sort_order",
-                "ai_commentary_enabled", "auto_tour_enabled"
+                "ai_commentary_enabled", "auto_tour_enabled",
+                "name", "narration", "trigger_keywords", "auto_play"
             ]
             sets = []
             params = {"id": script_id}
