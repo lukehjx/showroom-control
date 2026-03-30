@@ -191,8 +191,11 @@ class FlowRoute(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(200))
     description = Column(Text)
-    canvas_json = Column(JSON)       # React Flow 画布数据
+    canvas_json = Column(JSON)       # React Flow 画布数据（可视化编辑器用）
+    steps_json = Column(JSON)        # 简单步骤列表 [{type, config, wait_done}]
+    trigger_keywords = Column(JSON, default=list)
     enabled = Column(Boolean, default=True)
+    sort = Column(Integer, default=0)
     created_at = Column(BigInteger, default=now_ms)
     lanes = relationship("FlowLane", back_populates="route")
 
@@ -365,3 +368,12 @@ class VisitorLog(Base):
     action = Column(String(100))   # arrived/toured/left
     detail = Column(Text)
     created_at = Column(BigInteger, default=now_ms)
+
+
+# ─── 系统设置 ────────────────────────────────────────────────
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+    key = Column(String(100), primary_key=True)
+    value = Column(Text)
+    description = Column(String(500))
+    updated_at = Column(BigInteger, default=now_ms, onupdate=now_ms)

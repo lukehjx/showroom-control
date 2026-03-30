@@ -104,6 +104,18 @@ async def create_position(body: NavPosCreate, db: AsyncSession = Depends(get_db)
     return {"code": 200, "data": {"id": pos.id}}
 
 
+@router.put("/positions/{pos_id}")
+async def update_position(pos_id: int, body: NavPosCreate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(NavPosition).where(NavPosition.id == pos_id))
+    pos = result.scalar_one_or_none()
+    if not pos:
+        return {"code": 404, "msg": "not found"}
+    for k, v in body.model_dump().items():
+        setattr(pos, k, v)
+    await db.commit()
+    return {"code": 200}
+
+
 @router.delete("/positions/{pos_id}")
 async def delete_position(pos_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(NavPosition).where(NavPosition.id == pos_id))
