@@ -13,7 +13,7 @@ class AppointmentCreate(BaseModel):
     creator_userid: Optional[str] = "frontend"
     creator_name: Optional[str] = ""
     visitor_name: str
-    visit_time: str
+    visit_time: Optional[str] = None
     purpose: Optional[str] = None
     attendees: Optional[str] = None
     notes: Optional[str] = None
@@ -79,6 +79,7 @@ async def list_appointments(
     where = " AND ".join(conditions)
     sql = f"SELECT * FROM appointments WHERE {where} ORDER BY visit_time ASC LIMIT {limit}"
 
+    vt = int(vt) if vt is not None else 0
     async with async_session() as db:
         result = await db.execute(text(sql))
         rows = result.mappings().fetchall()
@@ -129,6 +130,7 @@ async def batch_cancel(body: dict):
         f" RETURNING id, visitor_name, visit_time"
     )
 
+    vt = int(vt) if vt is not None else 0
     async with async_session() as db:
         result = await db.execute(text(sql))
         cancelled = result.mappings().fetchall()
@@ -151,11 +153,10 @@ async def create_appointment(data: AppointmentCreate):
             try: vt = int(datetime.strptime(vt, fmt).timestamp() * 1000); break
             except: pass
         else: vt = 0
-    now_ms = int(datetime.now().timestamp() * 1000)
-
+    vt = int(vt) if vt is not None else 0
     async with async_session() as db:
         result = await db.execute(text(
-            f"INSERT INTO appointments (creator_userid, creator_name, visitor_name, visit_time, purpose, raw_text, created_at, updated_at) VALUES ('{cu}', '{cn}', '{vn}', {vt}, '{pu}', '{rt}', {now_ms}, {now_ms}) RETURNING id"
+            f"INSERT INTO appointments (creator_userid, creator_name, visitor_name, visit_time, purpose, raw_text, created_at, updated_at) VALUES ('{cu}', '{cn}', '{vn}', {vt}, '{pu}', '{rt}', NOW(), NOW()) RETURNING id"
         ))
         new_id = result.scalar()
         await db.commit()
@@ -185,6 +186,7 @@ async def update_appointment(apt_id: int, data: AppointmentUpdate):
         return {"code": 0}
 
     updates.append("updated_at=NOW()")
+    vt = int(vt) if vt is not None else 0
     async with async_session() as db:
         await db.execute(text(f"UPDATE appointments SET {', '.join(updates)} WHERE id={apt_id}"))
         await db.commit()
