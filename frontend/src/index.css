@@ -1,0 +1,33 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0d1b2a;
+  color: #e0f0ff;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* 玻璃磨砂卡片 */
+.glass-card {
+  background: rgba(15, 35, 54, 0.85);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+}
+
+/* 电蓝色发光 */
+.glow-blue { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+
+/* 状态点 */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.online { background: #52c41a; box-shadow: 0 0 8px #52c41a; }
+.status-dot.offline { background: #ff4d4f; }
+.status-dot.warning { background: #faad14; }
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0d1b2a; }
+::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 3px; }

@@ -1,0 +1,31 @@
+{
+  "name": "showroom-control-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "antd": "^5.22.0",
+    "@ant-design/icons": "^5.5.2",
+    "@ant-design/plots": "^2.3.0",
+    "reactflow": "^11.11.4",
+    "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
+    "zustand": "^5.0.2",
+    "ahooks": "^3.8.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/node": "^22.9.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}
