@@ -60,7 +60,7 @@ class NavPositionUpdate(BaseModel):
 # Route
 class RouteCreate(BaseModel):
     name: str
-    path: str
+    path: Optional[str] = None
     description: Optional[str] = None
     enabled: bool = True
 
